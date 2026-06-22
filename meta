@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Cofre — €13.000</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cofre">
+<meta name="theme-color" content="#0E1320">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1320; --bg-soft:#161D2E; --line:#26304a;
+    --ink:#EAEFF7; --ink-dim:#8A97B0;
+    --gold:#E0A23B; --green:#5BC98C; --red:#E8765A; --blue:#6FA8DC;
+    --display:'Space Grotesk',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--display);-webkit-font-smoothing:antialiased;}
+  body{padding:max(20px,env(safe-area-inset-top)) 18px max(28px,env(safe-area-inset-bottom)) 18px;
+    max-width:520px;margin:0 auto;min-height:100vh;}
+  h1{margin:0;font-weight:600;font-size:18px;letter-spacing:-0.01em;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-dim);}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+  header .target{text-align:right;}
+  header .target .eyebrow{display:block;margin-bottom:2px;}
+  header .target .val{font-family:var(--mono);font-size:14px;color:var(--gold);font-weight:600;}
+
+  .ring-wrap{display:flex;justify-content:center;margin:6px 0 2px;position:relative;}
+  svg.ring{width:220px;height:220px;transform:rotate(-90deg);}
+  .ring .track{fill:none;stroke:var(--line);stroke-width:14;}
+  .ring .fill{fill:none;stroke:var(--gold);stroke-width:14;stroke-linecap:round;
+    transition:stroke-dashoffset .7s cubic-bezier(.2,.7,.2,1);}
+  .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;}
+  .ring-center .pct{font-family:var(--mono);font-weight:600;font-size:46px;line-height:1;}
+  .ring-center .pct small{font-size:21px;color:var(--ink-dim);}
+  .ring-center .sub{font-family:var(--mono);font-size:13px;color:var(--ink-dim);margin-top:7px;}
+  .ring-center .sub b{color:var(--ink);}
+
+  /* ritmo + chegada */
+  .pace-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 16px;}
+  .pace{background:var(--bg-soft);border:1px solid var(--line);border-radius:13px;padding:12px 14px;}
+  .pace .k{font-family:var(--mono);font-size:18px;font-weight:600;line-height:1.1;}
+  .pace .k.ahead{color:var(--green);} .pace .k.behind{color:var(--red);} .pace .k.ontrack{color:var(--gold);}
+  .pace .l{font-size:11.5px;color:var(--ink-dim);margin-top:6px;line-height:1.35;}
+
+  .card{background:var(--bg-soft);border:1px solid var(--line);border-radius:16px;
+    padding:16px;margin-bottom:14px;}
+  .card>.eyebrow{display:block;margin-bottom:14px;}
+
+  .row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;}
+  .row+.row{border-top:1px solid var(--line);}
+  .row .lbl{font-size:14px;color:var(--ink-dim);display:flex;align-items:center;gap:8px;}
+  .row .lbl input.name{background:transparent;border:0;color:var(--ink-dim);font-size:14px;
+    font-family:var(--display);width:140px;outline:0;}
+  .row .v{display:flex;align-items:center;gap:2px;}
+  .row .v .cur{font-family:var(--mono);color:var(--ink-dim);font-size:14px;}
+  .row .v input.amt{background:transparent;border:0;outline:0;color:var(--ink);
+    font-family:var(--mono);font-size:16px;font-weight:600;width:74px;text-align:right;}
+  .row .v input.amt:focus{color:var(--gold);}
+  .row .del{background:none;border:0;color:var(--ink-dim);font-size:16px;padding:2px 4px;cursor:pointer;}
+  .row.total{margin-top:4px;border-top:1px solid var(--line);}
+  .row.total .lbl{color:var(--ink);font-weight:500;}
+  .row.total .v{font-family:var(--mono);font-weight:600;font-size:16px;}
+  .row.income .lbl{color:var(--ink);font-weight:500;}
+  .row.leftover{background:rgba(224,162,59,.08);margin:10px -16px -16px;padding:14px 16px;
+    border-top:1px solid var(--line);border-radius:0 0 16px 16px;}
+  .row.leftover .lbl{color:var(--gold);font-weight:600;font-size:14px;}
+  .row.leftover .v{font-family:var(--mono);font-weight:600;font-size:20px;color:var(--gold);}
+  .leftover-note{font-family:var(--mono);font-size:11px;color:var(--ink-dim);text-align:right;margin-top:5px;}
+  .add-line{margin-top:12px;background:none;border:1px dashed var(--line);color:var(--ink-dim);
+    width:100%;border-radius:10px;padding:10px;font-size:12.5px;font-family:var(--mono);
+    letter-spacing:.05em;cursor:pointer;}
+
+  /* colchão */
+  .cushion-bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin:4px 0 10px;}
+  .cushion-bar>span{display:block;height:100%;background:var(--blue);width:0;transition:width .5s;}
+  .cushion-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .cushion-head .amt{font-family:var(--mono);font-weight:600;font-size:18px;}
+  .cushion-head .amt b{color:var(--blue);}
+  .cushion-ctrl{display:flex;gap:8px;align-items:center;margin-bottom:12px;}
+  .cushion-ctrl .euro-input{flex:1;}
+  .rule{display:flex;gap:11px;align-items:flex-start;border-top:1px solid var(--line);padding-top:12px;}
+  .rule .dot{width:7px;height:7px;border-radius:99px;background:var(--blue);margin-top:6px;flex:none;}
+  .rule p{margin:0;font-size:12.5px;color:var(--ink-dim);line-height:1.55;}
+  .rule b{color:var(--ink);font-weight:500;}
+
+  .input-row{display:flex;gap:10px;}
+  .euro-input{display:flex;align-items:center;background:var(--bg);
+    border:1px solid var(--line);border-radius:11px;padding:0 12px;}
+  .euro-input span{font-family:var(--mono);color:var(--ink-dim);font-size:18px;}
+  .euro-input input{background:transparent;border:0;outline:0;color:var(--ink);
+    font-family:var(--mono);font-size:20px;font-weight:600;width:100%;padding:13px 0 13px 6px;}
+  #depositRow .euro-input{flex:1;}
+  .btn-primary{background:var(--gold);color:#1a1304;border:0;border-radius:11px;
+    padding:0 20px;font-size:15px;font-weight:600;white-space:nowrap;font-family:var(--display);cursor:pointer;}
+  .btn-primary:active{transform:translateY(1px);}
+  .btn-mini{background:var(--bg);border:1px solid var(--line);color:var(--blue);
+    border-radius:10px;padding:0 14px;font-family:var(--mono);font-size:13px;font-weight:600;cursor:pointer;}
+  .date-input{display:flex;align-items:center;background:var(--bg);border:1px solid var(--line);
+    border-radius:11px;padding:0 12px;margin-top:10px;}
+  .date-input label{font-family:var(--mono);font-size:11px;color:var(--ink-dim);
+    letter-spacing:.1em;text-transform:uppercase;margin-right:auto;}
+  .date-input input{background:transparent;border:0;outline:0;color:var(--ink);
+    font-family:var(--mono);font-size:14px;padding:11px 0;}
+  .quick{display:flex;gap:8px;margin-top:10px;}
+  .quick button{flex:1;background:var(--bg);border:1px solid var(--line);color:var(--ink-dim);
+    border-radius:9px;padding:9px;font-family:var(--mono);font-size:12px;cursor:pointer;}
+  .quick button:active{border-color:var(--gold);color:var(--gold);}
+  .hint{font-size:12px;color:var(--ink-dim);margin:11px 0 0;line-height:1.5;}
+
+  .section-head{display:flex;justify-content:space-between;align-items:baseline;margin:4px 2px 10px;}
+  .history{list-style:none;margin:0 0 22px;padding:0;}
+  .history li{display:flex;justify-content:space-between;align-items:center;gap:8px;
+    padding:11px 2px;border-bottom:1px solid var(--line);}
+  .history li:last-child{border-bottom:0;}
+  .history .hdate{background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    color:var(--ink-dim);font-family:var(--mono);font-size:12px;padding:7px 8px;outline:0;}
+  .history .hamt{display:flex;align-items:center;gap:1px;margin-left:auto;}
+  .history .hamt .cur{font-family:var(--mono);color:var(--green);font-size:14px;}
+  .history .hamt input{background:transparent;border:0;outline:0;color:var(--green);
+    font-family:var(--mono);font-weight:600;font-size:15px;width:62px;text-align:right;}
+  .history .del{color:var(--ink-dim);font-size:18px;padding:4px 6px;background:none;border:0;cursor:pointer;}
+  .empty{color:var(--ink-dim);font-size:13px;padding:18px 2px;line-height:1.5;}
+
+  details.settings{margin-top:6px;border-top:1px solid var(--line);padding-top:18px;}
+  details.settings>summary{font-family:var(--mono);font-size:11px;letter-spacing:.15em;
+    text-transform:uppercase;color:var(--ink-dim);cursor:pointer;list-style:none;}
+  details.settings>summary::-webkit-details-marker{display:none;}
+  .setting{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:14px;}
+  .setting label{font-size:13.5px;color:var(--ink-dim);}
+  .setting input{background:var(--bg-soft);border:1px solid var(--line);border-radius:9px;
+    color:var(--ink);font-family:var(--mono);font-size:15px;padding:9px 11px;width:130px;text-align:right;}
+  .backup{margin-top:22px;}
+  .backup .eyebrow{display:block;margin-bottom:8px;}
+  .backup textarea{width:100%;height:70px;background:var(--bg-soft);border:1px solid var(--line);
+    border-radius:10px;color:var(--ink-dim);font-family:var(--mono);font-size:11px;padding:10px;resize:vertical;}
+  .backup-btns{display:flex;gap:8px;margin-top:8px;}
+  .backup-btns button{flex:1;background:var(--bg-soft);border:1px solid var(--line);color:var(--ink);
+    border-radius:9px;padding:10px;font-size:12.5px;font-family:var(--mono);cursor:pointer;}
+  .danger{margin-top:20px;width:100%;background:transparent;border:1px solid var(--red);
+    color:var(--red);border-radius:11px;padding:12px;font-size:13px;cursor:pointer;}
+  footer{text-align:center;color:var(--ink-dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;margin-top:24px;}
+
+  /* toast de comemoração */
+  #toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));
+    transform:translateX(-50%) translateY(20px);background:var(--gold);color:#1a1304;
+    font-weight:600;font-size:14px;padding:13px 20px;border-radius:13px;opacity:0;
+    box-shadow:0 10px 30px -8px rgba(224,162,59,.7);transition:all .4s;pointer-events:none;
+    z-index:99;max-width:90%;text-align:center;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+  <header>
+    <div><span class="eyebrow">Meta</span><h1 id="goalTitle">Cofre €13.000</h1></div>
+    <div class="target"><span class="eyebrow">Ainda falta</span><span class="val num" id="remaining">€13.000</span></div>
+  </header>
+
+  <div class="ring-wrap">
+    <svg class="ring" viewBox="0 0 220 220">
+      <circle class="track" cx="110" cy="110" r="96"></circle>
+      <circle class="fill" cx="110" cy="110" r="96" id="ringFill"></circle>
+    </svg>
+    <div class="ring-center">
+      <div class="pct num"><span id="pctNum">0</span><small>%</small></div>
+      <div class="sub"><b id="savedAmt">€0</b> de <span id="goalAmt">€13.000</span></div>
+    </div>
+  </div>
+
+  <div class="pace-row">
+    <div class="pace"><div class="k num" id="paceVal">—</div><div class="l" id="paceLabel">ritmo vs. plano</div></div>
+    <div class="pace"><div class="k num" id="arriveVal">—</div><div class="l">chegada prevista</div></div>
+  </div>
+
+  <div class="card">
+    <span class="eyebrow">Entra e sai — por mês</span>
+    <div class="row income">
+      <span class="lbl">Renda mensal</span>
+      <span class="v"><span class="cur">€</span><input class="amt" id="income" type="number" inputmode="decimal" step="10"></span>
+    </div>
+    <div id="bills"></div>
+    <button class="add-line" id="addBill">+ adicionar conta</button>
+    <div class="row total"><span class="lbl">Total das contas</span><span class="v num" id="billsTotal">€0</span></div>
+    <div class="row leftover"><span class="lbl">Sobra pra guardar</span><span class="v num" id="leftover">€0</span></div>
+    <div class="leftover-note" id="leftoverWeek">≈ €0 por semana</div>
+  </div>
+
+  <div class="card">
+    <span class="eyebrow">Colchão de emergência</span>
+    <div class="cushion-head">
+      <span class="amt"><b id="cushionSaved">€0</b> / <span id="cushionGoal">€300</span></span>
+      <span class="eyebrow num" id="cushionPct">0%</span>
+    </div>
+    <div class="cushion-bar"><span id="cushionFill"></span></div>
+    <div class="cushion-ctrl">
+      <div class="euro-input"><span>€</span><input id="cushionInput" type="number" inputmode="decimal" step="10" placeholder="valor"></div>
+      <button class="btn-mini" id="cushionAdd">+ pôr</button>
+      <button class="btn-mini" id="cushionUse" style="color:var(--red);border-color:var(--red)">− usar</button>
+    </div>
+    <div class="rule"><span class="dot"></span>
+      <p><b>Regra de ouro:</b> imprevisto sai daqui primeiro, depois você reduz o aporte de uma semana — <b>nunca</b> saque o cofre dos €13.000.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="eyebrow">Registrar aporte no cofre</span>
+    <div class="input-row" id="depositRow">
+      <div class="euro-input"><span>€</span><input id="depositInput" type="number" inputmode="decimal" step="1"></div>
+      <button class="btn-primary" id="logBtn">Guardar</button>
+    </div>
+    <div class="date-input"><label>data do aporte</label><input id="depositDate" type="date"></div>
+    <div class="quick">
+      <button data-q="265">€265 (semana)</button>
+      <button data-q="leftover">sobra do mês</button>
+      <button data-q="0">limpar</button>
+    </div>
+    <p class="hint">Valor livre e data ajustável — esqueceu de lançar na terça? Mude a data antes de guardar.</p>
+  </div>
+
+  <div class="section-head"><span class="eyebrow">Histórico</span><span class="eyebrow num" id="histCount"></span></div>
+  <ul class="history" id="history"></ul>
+
+  <details class="settings">
+    <summary>Ajustes</summary>
+    <div class="setting"><label>Quanto preciso juntar (€)</label><input id="setGoal" type="number" step="100"></div>
+    <div class="setting"><label>Aporte semanal do plano (€)</label><input id="setWeekly" type="number" step="5"></div>
+    <div class="setting"><label>Primeira terça</label><input id="setStart" type="date"></div>
+    <div class="backup">
+      <span class="eyebrow">Backup — copie e guarde num lugar seguro</span>
+      <textarea id="ioArea" placeholder="Toque em 'Gerar backup' pra ver seus dados aqui, ou cole um backup salvo e toque em 'Restaurar'."></textarea>
+      <div class="backup-btns">
+        <button id="exportBtn">Gerar backup</button>
+        <button id="importBtn">Restaurar deste texto</button>
+      </div>
+    </div>
+    <button class="danger" id="resetBtn">Apagar todos os aportes</button>
+  </details>
+
+  <footer>SEPARA PRIMEIRO · VIVE COM O RESTO</footer>
+  <div id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  var KEY="cofre13k.v3";
+  var defaults={
+    goal:13000, income:2165, start:"2026-07-07", weekly:265,
+    bills:[{id:1,name:"Aluguel",amount:650},{id:2,name:"Alimentação",amount:170},{id:3,name:"Telefone/Internet",amount:20}],
+    deposits:[], cushion:{goal:300,saved:0}, celebrated:[]
+  };
+  function clone(o){return JSON.parse(JSON.stringify(o));}
+  function load(){try{var r=localStorage.getItem(KEY);if(!r)return clone(defaults);
+    var d=Object.assign(clone(defaults),JSON.parse(r));
+    d.cushion=Object.assign({goal:300,saved:0},d.cushion||{});
+    if(!Array.isArray(d.celebrated))d.celebrated=[];
+    return d;}catch(e){return clone(defaults);}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  var state=load();
+
+  function eur(n){return "€"+Math.round(n).toLocaleString("de-DE",{maximumFractionDigits:0});}
+  function today(){var d=new Date();d.setHours(0,0,0,0);return d;}
+  function isoOf(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+  function parseDate(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2]);}
+  function fmtMonthYear(d){var m=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+    return m[d.getMonth()]+" "+d.getFullYear();}
+  function addWeeks(d,n){var x=new Date(d);x.setDate(x.getDate()+n*7);return x;}
+
+  function totalSaved(){return state.deposits.reduce(function(s,d){return s+d.amount;},0);}
+  function billsTotal(){return state.bills.reduce(function(s,b){return s+(+b.amount||0);},0);}
+  function leftover(){return Math.max(0,(+state.income||0)-billsTotal());}
+
+  var C=2*Math.PI*96;
+  document.getElementById("ringFill").style.strokeDasharray=C;
+
+  function showToast(msg){var t=document.getElementById("toast");t.textContent=msg;
+    t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("show");},3200);}
+
+  function checkMilestones(pct){
+    var marks=[25,50,75,100];
+    for(var i=marks.length-1;i>=0;i--){
+      if(pct>=marks[i] && state.celebrated.indexOf(marks[i])===-1){
+        state.celebrated.push(marks[i]);save();
+        showToast(marks[i]===100?"Meta batida! €13.000 no cofre 🎉":"Você passou de "+marks[i]+"% da meta 🎉");
+        break;
+      }
+    }
+  }
+
+  function renderBills(){
+    var box=document.getElementById("bills");box.innerHTML="";
+    state.bills.forEach(function(b){
+      var row=document.createElement("div");row.className="row";
+      var lbl=document.createElement("span");lbl.className="lbl";
+      var name=document.createElement("input");name.className="name";name.value=b.name;
+      name.oninput=function(){b.name=name.value;save();};lbl.appendChild(name);
+      var v=document.createElement("span");v.className="v";
+      var cur=document.createElement("span");cur.className="cur";cur.textContent="€";
+      var amt=document.createElement("input");amt.className="amt";amt.type="number";
+      amt.inputMode="decimal";amt.step="5";amt.value=b.amount;
+      amt.oninput=function(){b.amount=+amt.value||0;updateNumbers();save();};
+      var del=document.createElement("button");del.className="del";del.textContent="×";
+      del.onclick=function(){state.bills=state.bills.filter(function(x){return x.id!==b.id;});
+        renderBills();updateNumbers();save();};
+      v.appendChild(cur);v.appendChild(amt);v.appendChild(del);
+      row.appendChild(lbl);row.appendChild(v);box.appendChild(row);
+    });
+  }
+
+  function updateNumbers(){
+    var saved=totalSaved(),goal=state.goal,rem=Math.max(0,goal-saved);
+    var pct=goal>0?Math.min(100,saved/goal*100):0;
+    document.getElementById("ringFill").style.strokeDashoffset=C*(1-pct/100);
+    document.getElementById("pctNum").textContent=Math.round(pct);
+    document.getElementById("savedAmt").textContent=eur(saved);
+    document.getElementById("goalAmt").textContent=eur(goal);
+    document.getElementById("goalTitle").textContent="Cofre "+eur(goal);
+    document.getElementById("remaining").textContent=rem>0?eur(rem):"feito 🎉";
+    var lo=leftover();
+    document.getElementById("billsTotal").textContent=eur(billsTotal());
+    document.getElementById("leftover").textContent=eur(lo);
+    document.getElementById("leftoverWeek").textContent="≈ "+eur(lo/4.333)+" por semana";
+
+    // colchão
+    var cg=state.cushion.goal||0, cs=state.cushion.saved||0;
+    var cpct=cg>0?Math.min(100,cs/cg*100):0;
+    document.getElementById("cushionSaved").textContent=eur(cs);
+    document.getElementById("cushionGoal").textContent=eur(cg);
+    document.getElementById("cushionPct").textContent=Math.round(cpct)+"%";
+    document.getElementById("cushionFill").style.width=cpct+"%";
+
+    // ritmo + chegada
+    var weekly=state.weekly||1, t=today(), start=parseDate(state.start);
+    var pv=document.getElementById("paceVal"), pl=document.getElementById("paceLabel");
+    pv.className="k num";
+    if(t<start){pv.textContent="—";pl.textContent="começa "+fmtMonthYear(start);}
+    else{
+      var we=Math.floor((t-start)/(7*864e5))+1;
+      var expected=Math.min(goal,we*weekly), diff=saved-expected;
+      if(Math.abs(diff)<weekly*0.15){pv.textContent="no ritmo";pv.classList.add("ontrack");pl.textContent="dentro do plano";}
+      else if(diff>0){pv.textContent="+"+eur(diff);pv.classList.add("ahead");pl.textContent="adiantado";}
+      else{pv.textContent="−"+eur(Math.abs(diff));pv.classList.add("behind");pl.textContent="atrás — uma terça extra recupera";}
+    }
+    var anchor=t<start?start:t, weeksLeft=Math.max(0,Math.ceil(rem/weekly));
+    document.getElementById("arriveVal").textContent=rem>0?fmtMonthYear(addWeeks(anchor,weeksLeft)):"concluído";
+  }
+
+  function renderHistory(){
+    var ul=document.getElementById("history");ul.innerHTML="";
+    var s=state.deposits.slice().sort(function(a,b){return b.date.localeCompare(a.date)||b.id-a.id;});
+    if(!s.length){var li=document.createElement("li");li.className="empty";
+      li.textContent="Nenhum aporte ainda. Quando guardar dinheiro, registre aqui pra ver a % subir.";
+      ul.appendChild(li);}
+    else s.forEach(function(dep){
+      var li=document.createElement("li");
+      var date=document.createElement("input");date.className="hdate";date.type="date";date.value=dep.date;
+      date.onchange=function(){if(date.value){dep.date=date.value;save();updateNumbers();renderHistory();}};
+      var amtBox=document.createElement("div");amtBox.className="hamt";
+      var cur=document.createElement("span");cur.className="cur";cur.textContent="+€";
+      var amt=document.createElement("input");amt.type="number";amt.inputMode="decimal";amt.step="1";amt.value=dep.amount;
+      amt.onchange=function(){var v=parseFloat(amt.value);if(v>0){dep.amount=Math.round(v*100)/100;save();updateNumbers();}else{amt.value=dep.amount;}};
+      var del=document.createElement("button");del.className="del";del.textContent="×";
+      del.onclick=function(){state.deposits=state.deposits.filter(function(x){return x.id!==dep.id;});
+        save();updateNumbers();renderHistory();};
+      amtBox.appendChild(cur);amtBox.appendChild(amt);
+      li.appendChild(date);li.appendChild(amtBox);li.appendChild(del);ul.appendChild(li);
+    });
+    document.getElementById("histCount").textContent=s.length?s.length+(s.length===1?" aporte":" aportes"):"";
+  }
+
+  // ações
+  document.getElementById("income").oninput=function(){state.income=+this.value||0;updateNumbers();save();};
+  document.getElementById("addBill").onclick=function(){state.bills.push({id:Date.now(),name:"Nova conta",amount:0});
+    renderBills();updateNumbers();save();};
+
+  document.getElementById("cushionAdd").onclick=function(){var i=document.getElementById("cushionInput");
+    var v=parseFloat(i.value);if(v>0){state.cushion.saved=(state.cushion.saved||0)+v;i.value="";updateNumbers();save();}};
+  document.getElementById("cushionUse").onclick=function(){var i=document.getElementById("cushionInput");
+    var v=parseFloat(i.value);if(v>0){state.cushion.saved=Math.max(0,(state.cushion.saved||0)-v);i.value="";updateNumbers();save();}};
+
+  document.getElementById("logBtn").onclick=function(){
+    var inp=document.getElementById("depositInput");var a=parseFloat(inp.value);
+    if(!a||a<=0){inp.focus();return;}
+    var dEl=document.getElementById("depositDate");var iso=dEl.value||isoOf(today());
+    state.deposits.push({id:Date.now(),date:iso,amount:Math.round(a*100)/100});
+    save();inp.value="";dEl.value=isoOf(today());updateNumbers();renderHistory();
+    checkMilestones(totalSaved()/state.goal*100);
+  };
+  Array.prototype.forEach.call(document.querySelectorAll(".quick button"),function(btn){
+    btn.onclick=function(){var q=btn.getAttribute("data-q");var inp=document.getElementById("depositInput");
+      if(q==="leftover")inp.value=Math.round(leftover());else if(q==="0")inp.value="";else inp.value=q;inp.focus();};});
+
+  document.getElementById("setGoal").onchange=function(){var v=parseFloat(this.value);if(v>0){state.goal=v;updateNumbers();save();}};
+  document.getElementById("setWeekly").onchange=function(){var v=parseFloat(this.value);if(v>0){state.weekly=v;updateNumbers();save();}};
+  document.getElementById("setStart").onchange=function(){if(this.value){state.start=this.value;updateNumbers();save();}};
+
+  // backup
+  document.getElementById("exportBtn").onclick=function(){
+    var ta=document.getElementById("ioArea");ta.value=JSON.stringify(state);
+    ta.focus();ta.select();
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value);showToast("Backup copiado — cole num lugar seguro");}
+      else{document.execCommand("copy");showToast("Backup copiado");}}catch(e){showToast("Selecione o texto e copie manualmente");}
+  };
+  document.getElementById("importBtn").onclick=function(){
+    var ta=document.getElementById("ioArea");
+    if(!ta.value.trim()){showToast("Cole um backup no campo primeiro");return;}
+    if(!confirm("Restaurar vai SUBSTITUIR todos os dados atuais por este backup. Continuar?"))return;
+    try{var d=JSON.parse(ta.value);state=Object.assign(clone(defaults),d);
+      state.cushion=Object.assign({goal:300,saved:0},state.cushion||{});
+      if(!Array.isArray(state.celebrated))state.celebrated=[];
+      save();initFields();renderBills();updateNumbers();renderHistory();showToast("Backup restaurado");}
+    catch(e){showToast("Backup inválido — confira o texto colado");}
+  };
+  document.getElementById("resetBtn").onclick=function(){
+    if(confirm("Apagar TODOS os aportes? Contas, colchão e meta continuam. Não dá pra desfazer."))
+      {state.deposits=[];state.celebrated=[];save();updateNumbers();renderHistory();}};
+
+  function initFields(){
+    document.getElementById("income").value=state.income;
+    document.getElementById("setGoal").value=state.goal;
+    document.getElementById("setWeekly").value=state.weekly;
+    document.getElementById("setStart").value=state.start;
+    document.getElementById("depositInput").value="265";
+    document.getElementById("depositDate").value=isoOf(today());
+  }
+  initFields();renderBills();updateNumbers();renderHistory();
+})();
+</script>
+</body>
+</html>

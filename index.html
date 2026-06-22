@@ -9,6 +9,13 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cofre">
 <meta name="theme-color" content="#0E1320">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icon-120.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -19,36 +26,41 @@
     --gold:#E0A23B; --green:#5BC98C; --red:#E8765A; --blue:#6FA8DC;
     --display:'Space Grotesk',system-ui,sans-serif;
     --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --nav-h:64px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;background:var(--bg);color:var(--ink);
     font-family:var(--display);-webkit-font-smoothing:antialiased;}
-  body{padding:max(20px,env(safe-area-inset-top)) 18px max(28px,env(safe-area-inset-bottom)) 18px;
+  body{padding:max(18px,env(safe-area-inset-top)) 18px
+       calc(var(--nav-h) + 24px + env(safe-area-inset-bottom)) 18px;
     max-width:520px;margin:0 auto;min-height:100vh;}
   h1{margin:0;font-weight:600;font-size:18px;letter-spacing:-0.01em;}
   .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;
     text-transform:uppercase;color:var(--ink-dim);}
   .num{font-family:var(--mono);font-variant-numeric:tabular-nums;}
 
-  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
   header .target{text-align:right;}
   header .target .eyebrow{display:block;margin-bottom:2px;}
   header .target .val{font-family:var(--mono);font-size:14px;color:var(--gold);font-weight:600;}
 
-  .ring-wrap{display:flex;justify-content:center;margin:6px 0 2px;position:relative;}
-  svg.ring{width:220px;height:220px;transform:rotate(-90deg);}
+  .panel{display:none;animation:fade .25s ease;}
+  .panel.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  .ring-wrap{display:flex;justify-content:center;margin:4px 0 2px;position:relative;}
+  svg.ring{width:200px;height:200px;transform:rotate(-90deg);}
   .ring .track{fill:none;stroke:var(--line);stroke-width:14;}
   .ring .fill{fill:none;stroke:var(--gold);stroke-width:14;stroke-linecap:round;
     transition:stroke-dashoffset .7s cubic-bezier(.2,.7,.2,1);}
   .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;
     align-items:center;justify-content:center;}
-  .ring-center .pct{font-family:var(--mono);font-weight:600;font-size:46px;line-height:1;}
-  .ring-center .pct small{font-size:21px;color:var(--ink-dim);}
-  .ring-center .sub{font-family:var(--mono);font-size:13px;color:var(--ink-dim);margin-top:7px;}
+  .ring-center .pct{font-family:var(--mono);font-weight:600;font-size:42px;line-height:1;}
+  .ring-center .pct small{font-size:19px;color:var(--ink-dim);}
+  .ring-center .sub{font-family:var(--mono);font-size:12px;color:var(--ink-dim);margin-top:6px;}
   .ring-center .sub b{color:var(--ink);}
 
-  /* ritmo + chegada */
-  .pace-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 16px;}
+  .pace-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 18px;}
   .pace{background:var(--bg-soft);border:1px solid var(--line);border-radius:13px;padding:12px 14px;}
   .pace .k{font-family:var(--mono);font-size:18px;font-weight:600;line-height:1.1;}
   .pace .k.ahead{color:var(--green);} .pace .k.behind{color:var(--red);} .pace .k.ontrack{color:var(--gold);}
@@ -57,6 +69,7 @@
   .card{background:var(--bg-soft);border:1px solid var(--line);border-radius:16px;
     padding:16px;margin-bottom:14px;}
   .card>.eyebrow{display:block;margin-bottom:14px;}
+  .card.accent{border-color:rgba(224,162,59,.4);box-shadow:0 0 0 1px rgba(224,162,59,.08);}
 
   .row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;}
   .row+.row{border-top:1px solid var(--line);}
@@ -82,7 +95,6 @@
     width:100%;border-radius:10px;padding:10px;font-size:12.5px;font-family:var(--mono);
     letter-spacing:.05em;cursor:pointer;}
 
-  /* colchão */
   .cushion-bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin:4px 0 10px;}
   .cushion-bar>span{display:block;height:100%;background:var(--blue);width:0;transition:width .5s;}
   .cushion-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
@@ -103,7 +115,7 @@
     font-family:var(--mono);font-size:20px;font-weight:600;width:100%;padding:13px 0 13px 6px;}
   #depositRow .euro-input{flex:1;}
   .btn-primary{background:var(--gold);color:#1a1304;border:0;border-radius:11px;
-    padding:0 20px;font-size:15px;font-weight:600;white-space:nowrap;font-family:var(--display);cursor:pointer;}
+    padding:0 22px;font-size:15px;font-weight:600;white-space:nowrap;font-family:var(--display);cursor:pointer;}
   .btn-primary:active{transform:translateY(1px);}
   .btn-mini{background:var(--bg);border:1px solid var(--line);color:var(--blue);
     border-radius:10px;padding:0 14px;font-family:var(--mono);font-size:13px;font-weight:600;cursor:pointer;}
@@ -120,7 +132,7 @@
   .hint{font-size:12px;color:var(--ink-dim);margin:11px 0 0;line-height:1.5;}
 
   .section-head{display:flex;justify-content:space-between;align-items:baseline;margin:4px 2px 10px;}
-  .history{list-style:none;margin:0 0 22px;padding:0;}
+  .history{list-style:none;margin:0;padding:0;}
   .history li{display:flex;justify-content:space-between;align-items:center;gap:8px;
     padding:11px 2px;border-bottom:1px solid var(--line);}
   .history li:last-child{border-bottom:0;}
@@ -133,27 +145,32 @@
   .history .del{color:var(--ink-dim);font-size:18px;padding:4px 6px;background:none;border:0;cursor:pointer;}
   .empty{color:var(--ink-dim);font-size:13px;padding:18px 2px;line-height:1.5;}
 
-  details.settings{margin-top:6px;border-top:1px solid var(--line);padding-top:18px;}
-  details.settings>summary{font-family:var(--mono);font-size:11px;letter-spacing:.15em;
-    text-transform:uppercase;color:var(--ink-dim);cursor:pointer;list-style:none;}
-  details.settings>summary::-webkit-details-marker{display:none;}
-  .setting{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:14px;}
+  .setting{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:14px;}
   .setting label{font-size:13.5px;color:var(--ink-dim);}
   .setting input{background:var(--bg-soft);border:1px solid var(--line);border-radius:9px;
     color:var(--ink);font-family:var(--mono);font-size:15px;padding:9px 11px;width:130px;text-align:right;}
-  .backup{margin-top:22px;}
   .backup .eyebrow{display:block;margin-bottom:8px;}
-  .backup textarea{width:100%;height:70px;background:var(--bg-soft);border:1px solid var(--line);
+  .backup textarea{width:100%;height:70px;background:var(--bg);border:1px solid var(--line);
     border-radius:10px;color:var(--ink-dim);font-family:var(--mono);font-size:11px;padding:10px;resize:vertical;}
   .backup-btns{display:flex;gap:8px;margin-top:8px;}
-  .backup-btns button{flex:1;background:var(--bg-soft);border:1px solid var(--line);color:var(--ink);
+  .backup-btns button{flex:1;background:var(--bg);border:1px solid var(--line);color:var(--ink);
     border-radius:9px;padding:10px;font-size:12.5px;font-family:var(--mono);cursor:pointer;}
-  .danger{margin-top:20px;width:100%;background:transparent;border:1px solid var(--red);
+  .danger{margin-top:6px;width:100%;background:transparent;border:1px solid var(--red);
     color:var(--red);border-radius:11px;padding:12px;font-size:13px;cursor:pointer;}
-  footer{text-align:center;color:var(--ink-dim);font-family:var(--mono);font-size:10px;letter-spacing:.1em;margin-top:24px;}
 
-  /* toast de comemoração */
-  #toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));
+  /* barra de abas fixa */
+  nav.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;
+    height:calc(var(--nav-h) + env(safe-area-inset-bottom));
+    padding-bottom:env(safe-area-inset-bottom);
+    display:flex;background:rgba(18,24,38,.92);backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);z-index:50;}
+  nav.tabs button{flex:1;background:none;border:0;cursor:pointer;color:var(--ink-dim);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    font-family:var(--display);font-size:10.5px;letter-spacing:.03em;padding:8px 0;}
+  nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;}
+  nav.tabs button.active{color:var(--gold);}
+
+  #toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 24px + env(safe-area-inset-bottom));
     transform:translateX(-50%) translateY(20px);background:var(--gold);color:#1a1304;
     font-weight:600;font-size:14px;padding:13px 20px;border-radius:13px;opacity:0;
     box-shadow:0 10px 30px -8px rgba(224,162,59,.7);transition:all .4s;pointer-events:none;
@@ -168,76 +185,87 @@
     <div class="target"><span class="eyebrow">Ainda falta</span><span class="val num" id="remaining">€13.000</span></div>
   </header>
 
-  <div class="ring-wrap">
-    <svg class="ring" viewBox="0 0 220 220">
-      <circle class="track" cx="110" cy="110" r="96"></circle>
-      <circle class="fill" cx="110" cy="110" r="96" id="ringFill"></circle>
-    </svg>
-    <div class="ring-center">
-      <div class="pct num"><span id="pctNum">0</span><small>%</small></div>
-      <div class="sub"><b id="savedAmt">€0</b> de <span id="goalAmt">€13.000</span></div>
+  <!-- ABA: COFRE (aporte primeiro) -->
+  <section class="panel active" data-panel="cofre">
+    <div class="card accent">
+      <span class="eyebrow">Registrar aporte no cofre</span>
+      <div class="input-row" id="depositRow">
+        <div class="euro-input"><span>€</span><input id="depositInput" type="number" inputmode="decimal" step="1"></div>
+        <button class="btn-primary" id="logBtn">Guardar</button>
+      </div>
+      <div class="date-input"><label>data do aporte</label><input id="depositDate" type="date"></div>
+      <div class="quick">
+        <button data-q="265">€265 (semana)</button>
+        <button data-q="leftover">sobra do mês</button>
+        <button data-q="0">limpar</button>
+      </div>
+      <p class="hint">Valor livre e data ajustável — esqueceu de lançar na terça? Mude a data antes de guardar.</p>
     </div>
-  </div>
 
-  <div class="pace-row">
-    <div class="pace"><div class="k num" id="paceVal">—</div><div class="l" id="paceLabel">ritmo vs. plano</div></div>
-    <div class="pace"><div class="k num" id="arriveVal">—</div><div class="l">chegada prevista</div></div>
-  </div>
+    <div class="ring-wrap">
+      <svg class="ring" viewBox="0 0 200 200">
+        <circle class="track" cx="100" cy="100" r="86"></circle>
+        <circle class="fill" cx="100" cy="100" r="86" id="ringFill"></circle>
+      </svg>
+      <div class="ring-center">
+        <div class="pct num"><span id="pctNum">0</span><small>%</small></div>
+        <div class="sub"><b id="savedAmt">€0</b> de <span id="goalAmt">€13.000</span></div>
+      </div>
+    </div>
+    <div class="pace-row">
+      <div class="pace"><div class="k num" id="paceVal">—</div><div class="l" id="paceLabel">ritmo vs. plano</div></div>
+      <div class="pace"><div class="k num" id="arriveVal">—</div><div class="l">chegada prevista</div></div>
+    </div>
 
-  <div class="card">
-    <span class="eyebrow">Entra e sai — por mês</span>
-    <div class="row income">
-      <span class="lbl">Renda mensal</span>
-      <span class="v"><span class="cur">€</span><input class="amt" id="income" type="number" inputmode="decimal" step="10"></span>
-    </div>
-    <div id="bills"></div>
-    <button class="add-line" id="addBill">+ adicionar conta</button>
-    <div class="row total"><span class="lbl">Total das contas</span><span class="v num" id="billsTotal">€0</span></div>
-    <div class="row leftover"><span class="lbl">Sobra pra guardar</span><span class="v num" id="leftover">€0</span></div>
-    <div class="leftover-note" id="leftoverWeek">≈ €0 por semana</div>
-  </div>
+    <div class="section-head"><span class="eyebrow">Histórico</span><span class="eyebrow num" id="histCount"></span></div>
+    <ul class="history" id="history"></ul>
+  </section>
 
-  <div class="card">
-    <span class="eyebrow">Colchão de emergência</span>
-    <div class="cushion-head">
-      <span class="amt"><b id="cushionSaved">€0</b> / <span id="cushionGoal">€300</span></span>
-      <span class="eyebrow num" id="cushionPct">0%</span>
+  <!-- ABA: ORÇAMENTO -->
+  <section class="panel" data-panel="orcamento">
+    <div class="card">
+      <span class="eyebrow">Entra e sai — por mês</span>
+      <div class="row income">
+        <span class="lbl">Renda mensal</span>
+        <span class="v"><span class="cur">€</span><input class="amt" id="income" type="number" inputmode="decimal" step="10"></span>
+      </div>
+      <div id="bills"></div>
+      <button class="add-line" id="addBill">+ adicionar conta</button>
+      <div class="row total"><span class="lbl">Total das contas</span><span class="v num" id="billsTotal">€0</span></div>
+      <div class="row leftover"><span class="lbl">Sobra pra guardar</span><span class="v num" id="leftover">€0</span></div>
+      <div class="leftover-note" id="leftoverWeek">≈ €0 por semana</div>
     </div>
-    <div class="cushion-bar"><span id="cushionFill"></span></div>
-    <div class="cushion-ctrl">
-      <div class="euro-input"><span>€</span><input id="cushionInput" type="number" inputmode="decimal" step="10" placeholder="valor"></div>
-      <button class="btn-mini" id="cushionAdd">+ pôr</button>
-      <button class="btn-mini" id="cushionUse" style="color:var(--red);border-color:var(--red)">− usar</button>
-    </div>
-    <div class="rule"><span class="dot"></span>
-      <p><b>Regra de ouro:</b> imprevisto sai daqui primeiro, depois você reduz o aporte de uma semana — <b>nunca</b> saque o cofre dos €13.000.</p>
-    </div>
-  </div>
+  </section>
 
-  <div class="card">
-    <span class="eyebrow">Registrar aporte no cofre</span>
-    <div class="input-row" id="depositRow">
-      <div class="euro-input"><span>€</span><input id="depositInput" type="number" inputmode="decimal" step="1"></div>
-      <button class="btn-primary" id="logBtn">Guardar</button>
+  <!-- ABA: COLCHÃO -->
+  <section class="panel" data-panel="colchao">
+    <div class="card">
+      <span class="eyebrow">Colchão de emergência</span>
+      <div class="cushion-head">
+        <span class="amt"><b id="cushionSaved">€0</b> / <span id="cushionGoal">€300</span></span>
+        <span class="eyebrow num" id="cushionPct">0%</span>
+      </div>
+      <div class="cushion-bar"><span id="cushionFill"></span></div>
+      <div class="cushion-ctrl">
+        <div class="euro-input"><span>€</span><input id="cushionInput" type="number" inputmode="decimal" step="10" placeholder="valor"></div>
+        <button class="btn-mini" id="cushionAdd">+ pôr</button>
+        <button class="btn-mini" id="cushionUse" style="color:var(--red);border-color:var(--red)">− usar</button>
+      </div>
+      <div class="rule"><span class="dot"></span>
+        <p><b>Regra de ouro:</b> imprevisto sai daqui primeiro, depois você reduz o aporte de uma semana — <b>nunca</b> saque o cofre dos €13.000.</p>
+      </div>
     </div>
-    <div class="date-input"><label>data do aporte</label><input id="depositDate" type="date"></div>
-    <div class="quick">
-      <button data-q="265">€265 (semana)</button>
-      <button data-q="leftover">sobra do mês</button>
-      <button data-q="0">limpar</button>
+  </section>
+
+  <!-- ABA: AJUSTES -->
+  <section class="panel" data-panel="ajustes">
+    <div class="card">
+      <span class="eyebrow">Plano</span>
+      <div class="setting"><label>Quanto preciso juntar (€)</label><input id="setGoal" type="number" step="100"></div>
+      <div class="setting"><label>Aporte semanal do plano (€)</label><input id="setWeekly" type="number" step="5"></div>
+      <div class="setting" style="margin-bottom:0"><label>Primeira terça</label><input id="setStart" type="date"></div>
     </div>
-    <p class="hint">Valor livre e data ajustável — esqueceu de lançar na terça? Mude a data antes de guardar.</p>
-  </div>
-
-  <div class="section-head"><span class="eyebrow">Histórico</span><span class="eyebrow num" id="histCount"></span></div>
-  <ul class="history" id="history"></ul>
-
-  <details class="settings">
-    <summary>Ajustes</summary>
-    <div class="setting"><label>Quanto preciso juntar (€)</label><input id="setGoal" type="number" step="100"></div>
-    <div class="setting"><label>Aporte semanal do plano (€)</label><input id="setWeekly" type="number" step="5"></div>
-    <div class="setting"><label>Primeira terça</label><input id="setStart" type="date"></div>
-    <div class="backup">
+    <div class="card backup">
       <span class="eyebrow">Backup — copie e guarde num lugar seguro</span>
       <textarea id="ioArea" placeholder="Toque em 'Gerar backup' pra ver seus dados aqui, ou cole um backup salvo e toque em 'Restaurar'."></textarea>
       <div class="backup-btns">
@@ -246,9 +274,19 @@
       </div>
     </div>
     <button class="danger" id="resetBtn">Apagar todos os aportes</button>
-  </details>
+  </section>
 
-  <footer>SEPARA PRIMEIRO · VIVE COM O RESTO</footer>
+  <nav class="tabs">
+    <button class="active" data-go="cofre">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Cofre</button>
+    <button data-go="orcamento">
+      <svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>Orçamento</button>
+    <button data-go="colchao">
+      <svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg>Colchão</button>
+    <button data-go="ajustes">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="currentColor"/><circle cx="15" cy="17" r="2" fill="currentColor"/></svg>Ajustes</button>
+  </nav>
+
   <div id="toast"></div>
 
 <script>
@@ -281,7 +319,7 @@
   function billsTotal(){return state.bills.reduce(function(s,b){return s+(+b.amount||0);},0);}
   function leftover(){return Math.max(0,(+state.income||0)-billsTotal());}
 
-  var C=2*Math.PI*96;
+  var C=2*Math.PI*86;
   document.getElementById("ringFill").style.strokeDasharray=C;
 
   function showToast(msg){var t=document.getElementById("toast");t.textContent=msg;
@@ -332,7 +370,6 @@
     document.getElementById("leftover").textContent=eur(lo);
     document.getElementById("leftoverWeek").textContent="≈ "+eur(lo/4.333)+" por semana";
 
-    // colchão
     var cg=state.cushion.goal||0, cs=state.cushion.saved||0;
     var cpct=cg>0?Math.min(100,cs/cg*100):0;
     document.getElementById("cushionSaved").textContent=eur(cs);
@@ -340,7 +377,6 @@
     document.getElementById("cushionPct").textContent=Math.round(cpct)+"%";
     document.getElementById("cushionFill").style.width=cpct+"%";
 
-    // ritmo + chegada
     var weekly=state.weekly||1, t=today(), start=parseDate(state.start);
     var pv=document.getElementById("paceVal"), pl=document.getElementById("paceLabel");
     pv.className="k num";
@@ -379,6 +415,16 @@
     document.getElementById("histCount").textContent=s.length?s.length+(s.length===1?" aporte":" aportes"):"";
   }
 
+  // abas
+  Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"),function(btn){
+    btn.onclick=function(){
+      var go=btn.getAttribute("data-go");
+      Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"),function(b){b.classList.toggle("active",b===btn);});
+      Array.prototype.forEach.call(document.querySelectorAll(".panel"),function(p){p.classList.toggle("active",p.getAttribute("data-panel")===go);});
+      window.scrollTo(0,0);
+    };
+  });
+
   // ações
   document.getElementById("income").oninput=function(){state.income=+this.value||0;updateNumbers();save();};
   document.getElementById("addBill").onclick=function(){state.bills.push({id:Date.now(),name:"Nova conta",amount:0});
@@ -405,10 +451,8 @@
   document.getElementById("setWeekly").onchange=function(){var v=parseFloat(this.value);if(v>0){state.weekly=v;updateNumbers();save();}};
   document.getElementById("setStart").onchange=function(){if(this.value){state.start=this.value;updateNumbers();save();}};
 
-  // backup
   document.getElementById("exportBtn").onclick=function(){
-    var ta=document.getElementById("ioArea");ta.value=JSON.stringify(state);
-    ta.focus();ta.select();
+    var ta=document.getElementById("ioArea");ta.value=JSON.stringify(state);ta.focus();ta.select();
     try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value);showToast("Backup copiado — cole num lugar seguro");}
       else{document.execCommand("copy");showToast("Backup copiado");}}catch(e){showToast("Selecione o texto e copie manualmente");}
   };
